@@ -14,13 +14,22 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <ListView x:Name="FilesList" AllowDrop="True" DragEnter="FilesList_DragEnter" Drop="FilesList_Drop">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <CheckBox x:Name="RemoveCb" Content="删除注释（css有效）"/>
+            <CheckBox x:Name="GzipCb" Content="Gzip 压缩"/>
+        </StackPanel>
+        <ListView x:Name="FilesList" Grid.Row="1" AllowDrop="True" DragEnter="FilesList_DragEnter" Drop="FilesList_Drop">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="文件名" Width="100" DisplayMemberBinding="{Binding Path=Name}"/>
                     <GridViewColumn Header="类型" Width="30" DisplayMemberBinding="{Binding Path=Kind}"/>
                     <GridViewColumn Header="路径" Width="200" DisplayMemberBinding="{Binding Path=Path}"/>
                     <GridViewColumn Header="状态" Width="100" DisplayMemberBinding="{Binding Path=Status}"/>
+                    <GridViewColumn Width="100" DisplayMemberBinding="{Binding Path=Message}"/>
                 </GridView>
             </ListView.View>
             <ListView.ContextMenu>

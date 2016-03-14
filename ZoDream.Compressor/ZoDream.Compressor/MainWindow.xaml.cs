@@ -24,44 +24,6 @@ namespace ZoDream.Compressor
             InitializeComponent();
             FilesList.ItemsSource = _filesList;
         }
-        
-        /// <summary>
-        /// 压缩单个文件
-        /// </summary>
-        /// <param name="item"></param>
-        private void _compressor(FileItem item)
-        {
-            TxtEncoder txtEncoder = new TxtEncoder();
-            StreamReader sr = new StreamReader(item.Path, txtEncoder.GetEncoding(item.Path));
-            string content = sr.ReadToEnd();
-            sr.Close();
-            string result = null;
-            try
-            {
-                switch (item.Kind)
-                {
-                    case FileKind.Css:
-                        CssCompressor compressor = new CssCompressor();
-                        result = compressor.Compress(content);
-                        break;
-                    case FileKind.Js:
-                        JavaScriptCompressor jscompressor = new JavaScriptCompressor();
-                        result = jscompressor.Compress(content);
-                        break;
-                    default:
-                        break;
-                }
-                StreamWriter sw = new StreamWriter(item.getCompressorPath(), false, Encoding.UTF8);
-                sw.Write(result);
-                sw.Close();
-                item.Status = FileStatus.Complete;
-            }
-            catch (Exception)
-            {
-                item.Status = FileStatus.Failure;
-            }
-            
-        }
 
         private void FilesList_DragEnter(object sender, DragEventArgs e)
         {
@@ -179,12 +141,22 @@ namespace ZoDream.Compressor
 
         private void Begin()
         {
+            bool r = (bool)RemoveCb.IsChecked;
+            bool g = (bool)GzipCb.IsChecked;
             foreach (FileItem item in _filesList)
             {
+                if (item.Status == FileStatus.Complete)
+                {
+                    item.Message = "跳过";
+                    break;
+                }
                 item.Status = FileStatus.Waiting;
                 Task.Run(() =>
                 {
-                    _compressor(item);
+                    CompressorHelper helper = new CompressorHelper();
+                    helper.RemoveComments = r;
+                    helper.GzipCompress = g;
+                    helper.Compress(item);
                 });
             }
         }

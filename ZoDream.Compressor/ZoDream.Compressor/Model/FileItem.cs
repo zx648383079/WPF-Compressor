@@ -28,6 +28,18 @@ namespace ZoDream.Compressor.Model
             }
         }
 
+        private string _message;
+
+        public string Message
+        {
+            get { return _message; }
+            set {
+                _message = value;
+                OnPropertyChanged("Message");
+            }
+        }
+
+
 
 
         public event PropertyChangedEventHandler PropertyChanged;

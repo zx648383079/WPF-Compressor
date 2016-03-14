@@ -70,6 +70,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Helper\CompressorHelper.cs" />
     <Compile Include="Helper\Compressor\CompressionType.cs" />
     <Compile Include="Helper\Compressor\Compressor.cs" />
     <Compile Include="Helper\Compressor\CssCompressionType.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="Helper\Compressor\ScriptOrFunctionScope.cs" />
     <Compile Include="Helper\Compressor\Tokens.cs" />
     <Compile Include="Helper\Compressor\YUICompressor.cs" />
+    <Compile Include="Helper\GzipCompressor.cs" />
     <Compile Include="Helper\TxtEncoder.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
