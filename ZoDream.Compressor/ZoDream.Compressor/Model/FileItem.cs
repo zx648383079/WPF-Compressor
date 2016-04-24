@@ -1,21 +1,23 @@
-﻿using System;
+﻿using GalaSoft.MvvmLight;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ZoDream.Compressor.Model
 {
-    public class FileItem : INotifyPropertyChanged
+    public class FileItem : ObservableObject
     {
         public string Name { get; set; }
 
-        public FileKind Kind { get; set; } = FileKind.Js;
+        public string Extension { get; set; }
 
-        public string Path { get; set; }
+        public string FullName { get; set; }
 
+        public FileKind Kind { get; set; }
 
         private FileStatus _status;
 
@@ -24,7 +26,7 @@ namespace ZoDream.Compressor.Model
             get { return _status; }
             set {
                 _status = value;
-                OnPropertyChanged("Status");
+                RaisePropertyChanged("Status");
             }
         }
 
@@ -35,26 +37,14 @@ namespace ZoDream.Compressor.Model
             get { return _message; }
             set {
                 _message = value;
-                OnPropertyChanged("Message");
-            }
-        }
-
-
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected internal virtual void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                RaisePropertyChanged("Message");
             }
         }
 
         public string getCompressorPath()
         {
-            return Regex.Replace(Path, @".(css|js)$", ".min$0");
+            if (Kind == FileKind.UnKown) return null;
+            return Regex.Replace(FullName, @".(css|js)$", ".min$0");
         }
 
         public FileItem()
@@ -64,21 +54,16 @@ namespace ZoDream.Compressor.Model
 
         public FileItem(string path)
         {
-            Match m = Regex.Match(path, @"\\(?<name>[^\\]+?).(?<ext>(css|js))$", RegexOptions.RightToLeft);
-            Name = m.Groups["name"].Value;
-            switch (m.Groups["ext"].Value)
+            FullName = path;
+            Name = Path.GetFileNameWithoutExtension(path);
+            Extension = Path.GetExtension(path);
+            if (Regex.IsMatch(Name, @"\.min$") || (!Extension.Equals(".js", StringComparison.OrdinalIgnoreCase) && !Extension.Equals(".css", StringComparison.OrdinalIgnoreCase)))
             {
-                case "js":
-                    Kind = FileKind.Js;
-                    break;
-                case "css":
-                    Kind = FileKind.Css;
-                    break;
-                default:
-                    Kind = FileKind.Unkown;
-                    break;
+                Kind = FileKind.UnKown;
+            } else
+            {
+                Kind = Extension.Equals(".js", StringComparison.OrdinalIgnoreCase) ? FileKind.Js : FileKind.Css;
             }
-            Path = path;
         }
     }
 
@@ -86,7 +71,7 @@ namespace ZoDream.Compressor.Model
     {
         Js,
         Css,
-        Unkown
+        UnKown
     }
 
     public enum FileStatus

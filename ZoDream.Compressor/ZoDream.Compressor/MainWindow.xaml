@@ -3,46 +3,78 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ZoDream.Compressor"
-        mc:Ignorable="d"
-        Title="ZoDream 压缩Js Css" Height="350" Width="525" Icon="Image/zodream.ico">
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:command="http://www.galasoft.ch/mvvmlight"
+        xmlns:ignore="http://www.galasoft.ch/ignore"
+        mc:Ignorable="d ignore"
+        Height="400"
+        Width="500"
+        Title="ZoDream Compressor"
+        DataContext="{Binding Main, Source={StaticResource Locator}}" Icon="Image/zodream.ico" WindowStartupLocation="CenterScreen">
+    
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Skin/MainSkin.xaml"/>
+                <ResourceDictionary Source="Skins/MainSkin.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid>
+
+    <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <StackPanel>
-            <CheckBox x:Name="RemoveCb" Content="删除注释（css有效）"/>
-            <CheckBox x:Name="GzipCb" Content="Gzip 压缩"/>
+            <ComboBox SelectedIndex="{Binding Mode}">
+                <ComboBoxItem>AjaxMin压缩</ComboBoxItem>
+                <ComboBoxItem>YUI压缩</ComboBoxItem>
+            </ComboBox>
+            <CheckBox Content="Gzip 压缩" IsChecked="{Binding IsGzip}"/>
+            <CheckBox Content="覆盖（如果存在）" IsChecked="{Binding IsCover}"/>
+            <CheckBox Content="所有文件" IsChecked="{Binding IsAll}"/>
         </StackPanel>
-        <ListView x:Name="FilesList" Grid.Row="1" AllowDrop="True" DragEnter="FilesList_DragEnter" Drop="FilesList_Drop">
+        <ListView x:Name="FilesList" Grid.Row="1" AllowDrop="True" ItemsSource="{Binding FileList}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="文件名" Width="100" DisplayMemberBinding="{Binding Path=Name}"/>
-                    <GridViewColumn Header="类型" Width="30" DisplayMemberBinding="{Binding Path=Kind}"/>
-                    <GridViewColumn Header="路径" Width="200" DisplayMemberBinding="{Binding Path=Path}"/>
+                    <GridViewColumn Header="类型" Width="50" DisplayMemberBinding="{Binding Path=Kind}"/>
                     <GridViewColumn Header="状态" Width="100" DisplayMemberBinding="{Binding Path=Status}"/>
+                    <GridViewColumn Header="拓展名" Width="50" DisplayMemberBinding="{Binding Path=Extension}"/>
+                    <GridViewColumn Header="路径" Width="200" DisplayMemberBinding="{Binding Path=FullName}"/>
                     <GridViewColumn Width="100" DisplayMemberBinding="{Binding Path=Message}"/>
                 </GridView>
             </ListView.View>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Drop">
+                    <command:EventToCommand Command="{Binding FileDrogCommand, Mode=OneWay}"
+                                    PassEventArgsToCommand="True" />
+                </i:EventTrigger>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <command:EventToCommand Command="{Binding DoubleCommand}" CommandParameter="{Binding ElementName=FileList,Path=SelectedIndex}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
             <ListView.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="选择">
-                        <MenuItem Header="文件" Click="MenuItem_Click"/>
-                        <MenuItem Header="文件夹" Click="MenuItem_Click"/>
+                        <MenuItem Header="文件" Command="{Binding OpenFileCommand}"/>
+                        <MenuItem Header="文件夹" Command="{Binding OpenFolderCommand}"/>
                     </MenuItem>
-                    <MenuItem Header="开始" Click="MenuItem_Click"/>
-                    <MenuItem Header="删除" Click="MenuItem_Click"/>
-                    <MenuItem Header="清空" Click="MenuItem_Click"/>
+                    <MenuItem Header="开始" Command="{Binding StartCommand}"/>
+                    <MenuItem Header="压缩">
+                        <MenuItem Header="YUI" Command="{Binding YUICommand}" CommandParameter="{Binding ElementName=FileList,Path=SelectedIndex}"/>
+                        <MenuItem Header="AjaxMin" Command="{Binding AjaxMinCommand}" CommandParameter="{Binding ElementName=FileList,Path=SelectedIndex}"/>
+                        <MenuItem Header="GZIP" Command="{Binding GzipCommand}" CommandParameter="{Binding ElementName=FileList,Path=SelectedIndex}"/>
+                    </MenuItem>
+                    <MenuItem Header="删除">
+                        <MenuItem Header="选中" Command="{Binding DeleteCommand}" CommandParameter="{Binding ElementName=FileList,Path=SelectedIndex}"/>
+                        <MenuItem Header="已完成" Command="{Binding ClearCommand}"/>
+                        <MenuItem Header="全部" Command="{Binding ClearAllCommand}"/>
+                    </MenuItem>
                 </ContextMenu>
             </ListView.ContextMenu>
         </ListView>
+        <TextBlock Grid.Row="2" Text="{Binding Message}"/>
     </Grid>
 </Window>

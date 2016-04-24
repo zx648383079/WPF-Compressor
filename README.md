@@ -4,7 +4,7 @@
 
 > 提供界面化操作，支持文件、文件夹选择，支持拖拽文件或文件夹；文件根据文件拓展名自动过滤非JS、CSS，文件夹自动遍历
 
-> CSS支持删除注释
+> 支持YUI 和 AjaxMin 压缩
 
 > 支持GZIP 压缩
 
@@ -14,5 +14,7 @@
 
 ## 主要参考来源：
 
-压缩源码来源： https://github.com/PureKrome/YUICompressor.NET
+YUI : https://github.com/PureKrome/YUICompressor.NET
+
+AjaxMin: http://ajaxmin.codeplex.com/
 
